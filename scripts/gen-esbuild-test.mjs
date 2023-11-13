@@ -1,21 +1,26 @@
-const Parser = require("tree-sitter");
-const Go = require("tree-sitter-go");
-const fs = require("fs-extra");
-const path = require("path");
-const changeCase = require("change-case");
-const chalk = require("chalk");
-const dedent = require("dedent");
+import Parser, { Query } from "tree-sitter";
+import Go from "tree-sitter-go";
+import pkg from "fs-extra";
+import { resolve, isAbsolute, dirname } from "path";
+import { kebabCase } from "change-case";
+import chalk from "chalk";
+import dedent from "dedent";
+import { fileURLToPath } from 'url';
+import { snakeCase } from "lodash-es";
+
+const { readFileSync, readdirSync, existsSync, ensureDirSync, writeFileSync } = pkg
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 // How to use this script
 // 1. Adding a test golang file under this dir or whereever you want, and modify the source path
 // 2. `let testDir = path.resolve(__dirname, "test", testCaseName);` Modify this testDir, by default,
 // The script will generate testCases under `${__dirname}/test`
 let cases = [
 	{ name: "default", source: "./bundler_default_test.go" },
-	{ name: "import_star", source: "./bundler_importstar_test.go" },
+	// { name: "import_star", source: "./bundler_importstar_test.go" },
 ];
 let currentCase = cases[0];
-let source = fs
-	.readFileSync(path.resolve(__dirname, currentCase.source))
+let source = readFileSync(resolve(__dirname, currentCase.source))
 	.toString();
 let ignoredTestName = [
 	"ts",
@@ -76,10 +81,10 @@ function getTopLevelBinding(root) {
 }
 
 let topLevelBindingMap = getTopLevelBinding(tree.rootNode);
-let query = new Parser.Query(parser.getLanguage(), queryString);
+let query = new Query(parser.getLanguage(), queryString);
 
 function isDirEmptySync(dir) {
-	let list = fs.readdirSync(dir);
+	let list = readdirSync(dir);
 	return list.length === 0;
 }
 
@@ -88,19 +93,19 @@ for (let i = 0, len = tree.rootNode.namedChildren.length; i < len; i++) {
 	if (child.type == "function_declaration") {
 		let testCaseName = child.namedChild(0).text;
 		testCaseName = testCaseName.slice(4);
-		testCaseName = changeCase.snakeCase(testCaseName);
+		testCaseName = snakeCase(testCaseName);
 
 		console.log(testCaseName);
 		// Skip some test cases by ignoredTestName
 		if (ignoredTestName.some((name) => testCaseName.includes(name))) {
 			continue;
 		}
-		let testDir = path.resolve(
+		let testDir = resolve(
 			__dirname,
 			`../crates/rolldown/tests/esbuild/${currentCase.name}`,
 			testCaseName,
 		);
-		let ignoredTestDir = path.resolve(
+		let ignoredTestDir = resolve(
 			__dirname,
 			`../crates/rolldown/tests/esbuild/${currentCase.name}`,
 			`.${testCaseName}`,
@@ -108,12 +113,12 @@ for (let i = 0, len = tree.rootNode.namedChildren.length; i < len; i++) {
 
 		// Cause if you withdraw directory in git system, git will cleanup dir but leave the directory alone
 		if (
-			(fs.existsSync(testDir) && !isDirEmptySync(testDir)) ||
-			(fs.existsSync(ignoredTestDir) && !isDirEmptySync(ignoredTestDir))
+			(existsSync(testDir) && !isDirEmptySync(testDir)) ||
+			(existsSync(ignoredTestDir) && !isDirEmptySync(ignoredTestDir))
 		) {
 			continue;
 		} else {
-			fs.ensureDirSync(testDir);
+			ensureDirSync(testDir);
 		}
 		let bundle_field_list = query.captures(child).filter((item) => {
 			return item.name === "element_list";
@@ -138,13 +143,13 @@ for (let i = 0, len = tree.rootNode.namedChildren.length; i < len; i++) {
 		let prefix = calculatePrefix(fileList.map((item) => item.name));
 		fileList.forEach((file) => {
 			let normalizedName = file.name.slice(prefix.length);
-			if (path.isAbsolute(normalizedName)) {
+			if (isAbsolute(normalizedName)) {
 				normalizedName = normalizedName.slice(1);
 			}
-			const absFile = path.resolve(testDir, normalizedName);
-			const dirName = path.dirname(absFile);
-			fs.ensureDirSync(dirName);
-			fs.writeFileSync(absFile, file.content);
+			const absFile = resolve(testDir, normalizedName);
+			const dirName = dirname(absFile);
+			ensureDirSync(dirName);
+			writeFileSync(absFile, file.content);
 		});
 
 		// entry
@@ -155,23 +160,23 @@ for (let i = 0, len = tree.rootNode.namedChildren.length; i < len; i++) {
 		}
 		let input = entryPaths.map((p) => {
 			let normalizedName = p.slice(prefix.length);
-			if (path.isAbsolute(normalizedName)) {
+			if (isAbsolute(normalizedName)) {
 				normalizedName = normalizedName.slice(1);
 			}
 			return {
-				name: normalizedName.split("/").join("_").split(".").join("_"),
+				name: normalizedName.split("/").join("-").split(".").join("-"),
 				import: normalizedName,
 			};
 		});
 		config.input.input = input;
-		const configFilePath = path.resolve(testDir, "test.config.json");
-		fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2));
+		const configFilePath = resolve(testDir, "test.config.json");
+		writeFileSync(configFilePath, JSON.stringify(config, null, 2));
 		// TODO: options
 
 		let log = jsConfig["expectedCompileLog"];
 		if (log) {
-			const configFilePath = path.resolve(testDir, "compile-log.text");
-			fs.writeFileSync(configFilePath, log);
+			const configFilePath = resolve(testDir, "compile-log.text");
+			writeFileSync(configFilePath, log);
 		}
 	}
 }
@@ -217,7 +222,7 @@ function processFiles(node, binding) {
 			}
 			let name = child.namedChild(0)?.text.slice(1, -1);
 			let content = child.namedChild(1).text.slice(1, -1).trim();
-			content = dedent.default(content);
+			content = dedent(content);
 			fileList.push({
 				name,
 				content,
@@ -225,7 +230,7 @@ function processFiles(node, binding) {
 		});
 		return fileList;
 	} catch (err) {
-		console.error(`Error occured when processFiles: ${chalk.red(err)}`);
+		console.error(`Error occured when processFiles: ${red(err)}`);
 		return [];
 	}
 }
