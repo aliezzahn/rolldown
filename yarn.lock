@@ -7802,6 +7802,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mocha-json-output-reporter@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "mocha-json-output-reporter@npm:2.1.0"
+  peerDependencies:
+    mocha: ^10.0.0
+    moment: ^2.21.0
+  checksum: 2f5083fd6ed7af26c6ef3eb9bf3e995e7bb63cbadcb1c2ffd51523f893194ccac3a2e1479a767347fa97bd8c5471ab7bec7538ca327bc025470ff380c67af565
+  languageName: node
+  linkType: hard
+
 "mocha@npm:^10.2.0":
   version: 10.2.0
   resolution: "mocha@npm:10.2.0"
@@ -9930,6 +9940,7 @@ __metadata:
     locate-character: "npm:^2.0.5"
     magic-string: "npm:^0.27.0"
     mocha: "npm:^10.2.0"
+    mocha-json-output-reporter: "npm:^2.1.0"
     source-map: "npm:^0.7.4"
     terser: "npm:^5.16.1"
   languageName: unknown

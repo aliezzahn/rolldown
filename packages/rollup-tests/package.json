@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "test": "mocha --file ./src/intercept/check.js test/test.js",
-    "test:update": "mocha --jobs 1 --file ./src/intercept/update-test-status.js test/test.js"
+    "test:update": "mocha --jobs 1 --file ./src/intercept/update-test-status.js test/test.js",
+    "test:json": "mocha --reporter json  --file ./src/intercept/check-with-details.js test/test.js"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.7.23",
+    "mocha-json-output-reporter": "^2.1.0",
     "source-map": "^0.7.4"
   }
 }
