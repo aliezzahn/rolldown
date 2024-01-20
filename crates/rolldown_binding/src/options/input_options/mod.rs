@@ -3,7 +3,7 @@ mod plugin;
 mod plugin_adapter;
 use crate::utils::{napi_error_ext::NapiErrorExt, JsCallback};
 use derivative::Derivative;
-use napi::JsFunction;
+use napi::threadsafe_function::{ErrorStrategy, ThreadsafeFunction};
 use napi_derive::napi;
 
 use serde::Deserialize;
@@ -59,7 +59,7 @@ impl From<ResolveOptions> for rolldown_resolver::ResolverOptions {
   }
 }
 
-#[napi(object)]
+#[napi(object, object_to_js = false)]
 #[derive(Deserialize, Default, Derivative)]
 #[serde(rename_all = "camelCase")]
 #[derivative(Debug)]
@@ -76,7 +76,7 @@ pub struct InputOptions {
   #[derivative(Debug = "ignore")]
   #[serde(skip_deserializing)]
   #[napi(ts_type = "(source: string, importer?: string, isResolved?: boolean) => boolean")]
-  pub external: Option<JsFunction>,
+  pub external: Option<ThreadsafeFunction<(String, Option<String>, bool), ErrorStrategy::Fatal>>,
   pub input: Vec<InputItem>,
   // makeAbsoluteExternalsRelative?: boolean | 'ifRelativeSource';
   // /** @deprecated Use the "manualChunks" output option instead. */
@@ -109,7 +109,7 @@ impl From<InputOptions>
 {
   fn from(value: InputOptions) -> Self {
     let cwd = PathBuf::from(value.cwd.clone());
-    assert!(cwd != PathBuf::from("/"), "{value:#?}");
+    debug_assert!(cwd != PathBuf::from("/"), "{value:#?}");
 
     let external = if let Some(js_fn) = value.external {
       match ExternalFn::new(&js_fn) {

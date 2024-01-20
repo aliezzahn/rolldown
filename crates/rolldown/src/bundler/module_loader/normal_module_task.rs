@@ -54,7 +54,6 @@ impl<'task, T: FileSystem + Default + 'static> NormalModuleTask<'task, T> {
   }
 
   async fn run_inner(&mut self) -> BatchedResult<()> {
-    println!("run inner");
     let mut warnings = vec![];
 
     // Run plugin load to get content first, if it is None using read fs as fallback.

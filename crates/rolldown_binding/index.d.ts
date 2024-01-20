@@ -61,7 +61,7 @@ export interface PluginOptions {
   resolveId?: (specifier: string, importer?: string, options?: HookResolveIdArgsOptions) => Promise<undefined | ResolveIdResult>
   load?: (id: string) => Promise<undefined | SourceResult>
   transform?: (id: string, code: string) => Promise<undefined | SourceResult>
-  buildEnd?: (error: string) => Promise<void>
+  buildEnd?: (error?: string) => Promise<void>
 }
 
 export interface RenderedModule {

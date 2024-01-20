@@ -1,8 +1,8 @@
 use derivative::Derivative;
-use napi::JsFunction;
+use napi::threadsafe_function::{ErrorStrategy, ThreadsafeFunction};
 use serde::Deserialize;
 
-#[napi_derive::napi(object)]
+#[napi_derive::napi(object, object_to_js = false)]
 #[derive(Deserialize, Default, Derivative)]
 #[serde(rename_all = "camelCase")]
 #[derivative(Debug)]
@@ -12,29 +12,31 @@ pub struct PluginOptions {
   #[derivative(Debug = "ignore")]
   #[serde(skip_deserializing)]
   #[napi(ts_type = "() => Promise<void>")]
-  pub build_start: Option<JsFunction>,
+  pub build_start: Option<ThreadsafeFunction<(), ErrorStrategy::Fatal>>,
 
   #[derivative(Debug = "ignore")]
   #[serde(skip_deserializing)]
   #[napi(
     ts_type = "(specifier: string, importer?: string, options?: HookResolveIdArgsOptions) => Promise<undefined | ResolveIdResult>"
   )]
-  pub resolve_id: Option<JsFunction>,
+  pub resolve_id: Option<
+    ThreadsafeFunction<(String, Option<String>, HookResolveIdArgsOptions), ErrorStrategy::Fatal>,
+  >,
 
   #[derivative(Debug = "ignore")]
   #[serde(skip_deserializing)]
   #[napi(ts_type = "(id: string) => Promise<undefined | SourceResult>")]
-  pub load: Option<JsFunction>,
+  pub load: Option<ThreadsafeFunction<(String,), ErrorStrategy::Fatal>>,
 
   #[derivative(Debug = "ignore")]
   #[serde(skip_deserializing)]
   #[napi(ts_type = "(id: string, code: string) => Promise<undefined | SourceResult>")]
-  pub transform: Option<JsFunction>,
+  pub transform: Option<ThreadsafeFunction<(String, String), ErrorStrategy::Fatal>>,
 
   #[derivative(Debug = "ignore")]
   #[serde(skip_deserializing)]
-  #[napi(ts_type = "(error: string) => Promise<void>")]
-  pub build_end: Option<JsFunction>,
+  #[napi(ts_type = "(error?: string) => Promise<void>")]
+  pub build_end: Option<ThreadsafeFunction<(Option<String>,), ErrorStrategy::Fatal>>,
 }
 
 #[napi_derive::napi(object)]

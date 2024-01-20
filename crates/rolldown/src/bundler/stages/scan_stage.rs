@@ -65,6 +65,7 @@ impl<Fs: FileSystem + Default + 'static> ScanStage<Fs> {
     let ModuleLoaderOutput { modules, entry_points, symbols, runtime, warnings } =
       module_loader.fetch_all_modules(user_entries).await?;
 
+    #[cfg(not(target_arch = "wasm32"))]
     tracing::debug!("Scan stage finished {modules:#?}");
 
     Ok(ScanStageOutput { modules, entry_points, symbols, runtime, warnings })

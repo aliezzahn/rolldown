@@ -1,10 +1,12 @@
 import { rolldown } from './dist/index.mjs'
 
-const output = await rolldown({
+const bundler = await rolldown({
   input: process.cwd() + '/packages/node/test.js',
 })
 
-await output.generate({
+const { output } = await bundler.generate({
   format: 'esm',
   file: 'test.mjs',
 })
+
+console.info(output)

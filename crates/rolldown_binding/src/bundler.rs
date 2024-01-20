@@ -5,10 +5,10 @@ use rolldown_fs::OsFileSystem;
 use tokio::sync::Mutex;
 use tracing::instrument;
 
-use crate::{
-  options::InputOptions, options::OutputOptions, output::Outputs,
-  utils::try_init_custom_trace_subscriber, NAPI_ENV,
-};
+use crate::{options::InputOptions, options::OutputOptions, output::Outputs};
+
+#[cfg(not(target_arch = "wasm32"))]
+use crate::utils::try_init_custom_trace_subscriber;
 
 #[napi]
 pub struct Bundler {
@@ -17,10 +17,12 @@ pub struct Bundler {
 
 #[napi]
 impl Bundler {
+  #[allow(unused)]
   #[napi(constructor)]
   pub fn new(env: Env, input_opts: InputOptions) -> napi::Result<Self> {
+    #[cfg(not(target_arch = "wasm32"))]
     try_init_custom_trace_subscriber(env);
-    Self::new_impl(env, input_opts)
+    Self::new_impl(input_opts)
   }
 
   #[napi]
@@ -45,11 +47,9 @@ impl Bundler {
 }
 
 impl Bundler {
-  pub fn new_impl(env: Env, input_opts: InputOptions) -> napi::Result<Self> {
-    NAPI_ENV.set(&env, || {
-      let (opts, plugins) = input_opts.into();
-      Ok(Self { inner: Mutex::new(NativeBundler::with_plugins(opts?, plugins?)) })
-    })
+  pub fn new_impl(input_opts: InputOptions) -> napi::Result<Self> {
+    let (opts, plugins) = input_opts.into();
+    Ok(Self { inner: Mutex::new(NativeBundler::with_plugins(opts?, plugins?)) })
   }
 
   #[instrument(skip_all)]
