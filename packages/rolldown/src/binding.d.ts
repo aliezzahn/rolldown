@@ -1,11 +1,10 @@
 type MaybePromise<T> = T | Promise<T>
-export class BindingPluginContext {}
+export class BindingPluginContext {
+
+}
 
 export class Bundler {
-  constructor(
-    inputOptions: BindingInputOptions,
-    outputOptions: BindingOutputOptions,
-  )
+  constructor(inputOptions: BindingInputOptions, outputOptions: BindingOutputOptions)
   write(): Promise<BindingOutputs>
   generate(): Promise<BindingOutputs>
   scan(): Promise<void>
@@ -36,13 +35,7 @@ export interface BindingInputItem {
 }
 
 export interface BindingInputOptions {
-  external?:
-    | undefined
-    | ((
-        source: string,
-        importer: string | undefined,
-        isResolved: boolean,
-      ) => boolean)
+  external?: undefined | ((source: string, importer: string | undefined, isResolved: boolean) => boolean)
   input: Array<BindingInputItem>
   plugins: Array<BindingPluginOptions>
   resolve?: BindingResolveOptions
@@ -85,21 +78,11 @@ export interface BindingOutputs {
 export interface BindingPluginOptions {
   name: string
   buildStart?: (ctx: BindingPluginContext) => MaybePromise<void>
-  resolveId?: (
-    specifier: string,
-    importer?: string,
-    options?: BindingHookResolveIdExtraOptions,
-  ) => MaybePromise<undefined | BindingHookResolveIdOutput>
+  resolveId?: (specifier: string, importer?: string, options?: BindingHookResolveIdExtraOptions) => MaybePromise<undefined | BindingHookResolveIdOutput>
   load?: (id: string) => MaybePromise<undefined | BindingHookLoadOutput>
-  transform?: (
-    id: string,
-    code: string,
-  ) => MaybePromise<undefined | BindingHookLoadOutput>
+  transform?: (id: string, code: string) => MaybePromise<undefined | BindingHookLoadOutput>
   buildEnd?: (error?: string) => MaybePromise<void>
-  renderChunk?: (
-    code: string,
-    chunk: RenderedChunk,
-  ) => MaybePromise<undefined | BindingHookRenderChunkOutput>
+  renderChunk?: (code: string, chunk: RenderedChunk) => MaybePromise<undefined | BindingHookRenderChunkOutput>
   generateBundle?: (bundle: Outputs, isWrite: boolean) => MaybePromise<void>
   writeBundle?: (bundle: Outputs) => MaybePromise<void>
 }
@@ -129,3 +112,4 @@ export interface RenderedChunk {
   fileName: string
   modules: Record<string, BindingRenderedModule>
 }
+

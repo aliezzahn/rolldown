@@ -94,8 +94,8 @@ importers:
   packages/rolldown:
     devDependencies:
       '@napi-rs/cli':
-        specifier: ^3.0.0-alpha.43
-        version: 3.0.0-alpha.43
+        specifier: ^3.0.0-alpha.44
+        version: 3.0.0-alpha.44(emnapi@1.1.0)
       citty:
         specifier: ^0.1.6
         version: 0.1.6
@@ -105,6 +105,9 @@ importers:
       consola:
         specifier: ^3.2.3
         version: 3.2.3
+      emnapi:
+        specifier: ^1.1.0
+        version: 1.1.0
       glob:
         specifier: ^10.3.10
         version: 10.3.10
@@ -1706,18 +1709,15 @@ packages:
       read-yaml-file: 1.1.0
     dev: true
 
-  /@napi-rs/cli@3.0.0-alpha.43:
-    resolution: {integrity: sha512-8JKQq4sScmTPSe/OaUJI6IEtM4Exo9ENzTCqaV743IhCbXlCXSUhQUGG1UgW3rrrJMrGoBXHzzL49B1ftijGDw==}
+  /@napi-rs/cli@3.0.0-alpha.44(emnapi@1.1.0):
+    resolution: {integrity: sha512-ED2hRtQfrCTi0jmWAziDMV2tb2+KdK0j90VdU9EYaBDYHD1X5FJOw0lxftwS2ifFql/Lb6QnM1SCgRGMbcDH4Q==}
     engines: {node: '>= 16'}
     hasBin: true
     peerDependencies:
-      '@emnapi/runtime': ^1.0.0
-      '@tybys/wasm-util': '*'
-      emnapi: ^1.0.0
+      '@emnapi/runtime': ^1.1.0
+      emnapi: ^1.1.0
     peerDependenciesMeta:
       '@emnapi/runtime':
-        optional: true
-      '@tybys/wasm-util':
         optional: true
       emnapi:
         optional: true
@@ -1727,6 +1727,7 @@ packages:
       clipanion: 3.2.1(typanion@3.14.0)
       colorette: 2.0.20
       debug: 4.3.4(supports-color@8.1.1)
+      emnapi: 1.1.0
       inquirer: 9.2.15
       js-yaml: 4.1.0
       lodash-es: 4.17.21
@@ -3178,7 +3179,7 @@ packages:
   /axios@0.26.1:
     resolution: {integrity: sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==}
     dependencies:
-      follow-redirects: 1.15.6
+      follow-redirects: 1.15.5
     transitivePeerDependencies:
       - debug
     dev: true
@@ -4214,6 +4215,15 @@ packages:
     resolution: {integrity: sha512-K3WPQ36bUOtXg/1+69bFlFOvdSm0/0bGqmsfPDLRXLanoKXdA+pIWuf/VbA9b+2CwBFuONgl4NEz4OEm+OJOKA==}
     dev: true
 
+  /emnapi@1.1.0:
+    resolution: {integrity: sha512-q4S4JY5Td/CeMXiTT78jejjfKlFNEO4/ID/y33K+8wFj4VQlz511xQC/dGNPMxaHkMcQJCsI/CGHzmJHZ5RFRw==}
+    peerDependencies:
+      node-addon-api: '>= 6.1.0'
+    peerDependenciesMeta:
+      node-addon-api:
+        optional: true
+    dev: true
+
   /emoji-regex@10.3.0:
     resolution: {integrity: sha512-QpLs9D9v9kArv4lfDEgg1X/gN5XLnf/A6l9cs8SPZLRZR3ZkY9+kwIQTxm+fsSej5UMYGE8fdoaZVIBlqG0XTw==}
     dev: true
@@ -4597,8 +4607,8 @@ packages:
       tabbable: 6.2.0
     dev: true
 
-  /follow-redirects@1.15.6:
-    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
+  /follow-redirects@1.15.5:
+    resolution: {integrity: sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'

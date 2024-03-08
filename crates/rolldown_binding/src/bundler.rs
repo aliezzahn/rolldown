@@ -1,4 +1,4 @@
-use napi::{tokio::sync::Mutex, Env};
+use napi::Env;
 use napi_derive::napi;
 use rolldown::Bundler as NativeBundler;
 use rolldown_fs::OsFileSystem;
@@ -12,7 +12,7 @@ use crate::{
 
 #[napi]
 pub struct Bundler {
-  inner: Mutex<NativeBundler<OsFileSystem>>,
+  inner: NativeBundler<OsFileSystem>,
 }
 
 #[napi]
@@ -27,26 +27,22 @@ impl Bundler {
     let ret = normalize_binding_options(input_options, output_options)?;
 
     Ok(Self {
-      inner: Mutex::new(NativeBundler::with_plugins(
-        ret.input_options,
-        ret.output_options,
-        ret.plugins,
-      )),
+      inner: NativeBundler::with_plugins(ret.input_options, ret.output_options, ret.plugins),
     })
   }
 
   #[napi]
-  pub async fn write(&self) -> napi::Result<BindingOutputs> {
+  pub async unsafe fn write(&mut self) -> napi::Result<BindingOutputs> {
     self.write_impl().await
   }
 
   #[napi]
-  pub async fn generate(&self) -> napi::Result<BindingOutputs> {
+  pub async unsafe fn generate(&mut self) -> napi::Result<BindingOutputs> {
     self.generate_impl().await
   }
 
   #[napi]
-  pub async fn scan(&self) -> napi::Result<()> {
+  pub async unsafe fn scan(&mut self) -> napi::Result<()> {
     self.scan_impl().await
   }
 }
@@ -54,12 +50,8 @@ impl Bundler {
 impl Bundler {
   #[instrument(skip_all)]
   #[allow(clippy::significant_drop_tightening)]
-  pub async fn scan_impl(&self) -> napi::Result<()> {
-    let mut bundler_core = self.inner.try_lock().map_err(|_| {
-      napi::Error::from_reason("Failed to lock the bundler. Is another operation in progress?")
-    })?;
-
-    let result = bundler_core.scan().await;
+  pub async fn scan_impl(&mut self) -> napi::Result<()> {
+    let result = self.inner.scan().await;
 
     if let Err(err) = result {
       // TODO: better handing errors
@@ -72,12 +64,8 @@ impl Bundler {
 
   #[instrument(skip_all)]
   #[allow(clippy::significant_drop_tightening)]
-  pub async fn write_impl(&self) -> napi::Result<BindingOutputs> {
-    let mut bundler_core = self.inner.try_lock().map_err(|_| {
-      napi::Error::from_reason("Failed to lock the bundler. Is another operation in progress?")
-    })?;
-
-    let maybe_outputs = bundler_core.write().await;
+  pub async fn write_impl(&mut self) -> napi::Result<BindingOutputs> {
+    let maybe_outputs = self.inner.write().await;
 
     let outputs = match maybe_outputs {
       Ok(outputs) => outputs,
@@ -93,12 +81,8 @@ impl Bundler {
 
   #[instrument(skip_all)]
   #[allow(clippy::significant_drop_tightening)]
-  pub async fn generate_impl(&self) -> napi::Result<BindingOutputs> {
-    let mut bundler_core = self.inner.try_lock().map_err(|_| {
-      napi::Error::from_reason("Failed to lock the bundler. Is another operation in progress?")
-    })?;
-
-    let maybe_outputs = bundler_core.generate().await;
+  pub async fn generate_impl(&mut self) -> napi::Result<BindingOutputs> {
+    let maybe_outputs = self.inner.generate().await;
 
     let outputs = match maybe_outputs {
       Ok(outputs) => outputs,
